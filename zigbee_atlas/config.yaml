@@ -1,0 +1,39 @@
+name: Zigbee Atlas
+version: "0.1.0"
+slug: zigbee_atlas
+description: Passive Zigbee2MQTT history, stable network maps and a time-lapse player
+arch:
+  - amd64
+  - aarch64
+startup: application
+boot: auto
+init: false
+ingress: true
+ingress_port: 8099
+panel_icon: mdi:graph-outline
+panel_title: Zigbee Atlas
+panel_admin: true
+backup: cold
+map:
+  - type: homeassistant_config
+    read_only: true
+  - type: all_addon_configs
+    read_only: true
+  - type: share
+    read_only: true
+options:
+  zigbee2mqtt_directory: auto
+  log_directory: auto
+  timezone: Europe/Prague
+  mqtt_base_topic: zigbee2mqtt
+  poll_seconds: 60
+  render_minutes: 60
+  detail_days: 30
+schema:
+  zigbee2mqtt_directory: str
+  log_directory: str
+  timezone: str
+  mqtt_base_topic: str
+  poll_seconds: int(10,300)
+  render_minutes: int(1,1440)
+  detail_days: int(1,90)

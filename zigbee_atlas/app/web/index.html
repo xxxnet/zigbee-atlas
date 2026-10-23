@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Zigbee · atlas sítě</title>
+  <link rel="stylesheet" href="style.css?v=__BUILD__">
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="brand-mark">◉</span><div><strong>Zigbee</strong><span>ATLAS SÍTĚ</span></div></div>
+    <div class="heading"><span class="eyebrow">POZOROVANÁ TOPOLOGIE</span><h1 id="frame-title">Načítám historii…</h1></div>
+    <div class="header-actions"><span id="freshness" class="badge">—</span><button id="refresh" title="Načíst nové snímky">↻ Obnovit</button><button id="download" title="Stáhnout právě zobrazenou mapu jako SVG">↓ SVG</button></div>
+  </header>
+  <main>
+    <section class="workspace" aria-label="Mapa Zigbee">
+      <div class="map-toolbar"><label class="search">⌕ <input id="search" type="search" placeholder="Najít zařízení…" list="devices" autocomplete="off"><datalist id="devices"></datalist></label><button id="clear-selection" hidden>Zrušit výběr ×</button><div class="options"><label><input id="historical" type="checkbox" checked>Další pozorované cesty</label><label><input id="counts" type="checkbox" checked>Počty zdrojů</label></div></div>
+      <div id="map-container"><svg id="map" xmlns="http://www.w3.org/2000/svg" aria-label="Interaktivní síťová mapa"></svg><div id="capability" hidden></div><div id="empty" hidden>V tomto období nemáme záznam. Starší známé cesty zůstávají šedé.</div><div class="map-caption"><span class="legend primary">Poslední cesta</span><span class="legend historical">Další pozorovaná</span><span class="legend parent">Rodič při připojení</span></div><div class="zoom"><button id="zoom-in" aria-label="Přiblížit">+</button><button id="zoom-out" aria-label="Oddálit">−</button><button id="fit" title="Zobrazit celou síť">⌖</button></div><div id="loading" hidden>Načítám snímek…</div></div>
+      <footer class="player">
+        <div class="player-top"><div class="transport"><button id="previous" title="Předchozí snímek (←)">‹</button><button id="play" class="play" title="Přehrát (mezerník)" aria-label="Přehrát">▶</button><button id="next" title="Další snímek (→)">›</button><span id="position">—</span></div><div class="play-settings"><label>Krok <select id="resolution"><option value="day">den</option><option value="hour">hodina</option><option value="event">událost</option></select></label><label>Snímek <select id="speed"><option value="250">0,25 s</option><option value="500">0,5 s</option><option value="1000" selected>1 s</option><option value="2000">2 s</option><option value="5000">5 s</option><option value="10000">10 s</option></select></label><label><input id="loop" type="checkbox" checked>Smyčka</label></div></div>
+        <input id="timeline" type="range" min="0" max="0" value="0" aria-label="Časový snímek">
+        <div class="time-range"><span id="range-start">—</span><span id="coverage">—</span><span id="range-end">—</span></div>
+      </footer>
+    </section>
+    <aside>
+      <section class="summary"><span class="eyebrow">STAV VE SNÍMKU</span><div class="stats"><div><strong id="count-observed">—</strong><span>viděno nedávno</span></div><div><strong id="count-silent" class="amber">—</strong><span>delší ticho</span></div><div><strong id="count-offline" class="red">—</strong><span>Z2M offline</span></div></div><p id="coverage-note"></p></section>
+      <section id="inspector" class="inspector"><span class="eyebrow">DETAIL ZAŘÍZENÍ</span><h2>Klikni na uzel</h2><p>Vyber zařízení pro jeho cesty, rodiče a poslední komunikaci.</p></section>
+      <section class="event-section"><div class="section-title"><div><span class="eyebrow">POSLEDNÍCH 24 HODIN</span><h2>Co se změnilo</h2></div><span id="event-count" class="badge">0</span></div><select id="event-filter" aria-label="Typ události"><option value="important">Důležité události</option><option value="all">Všechny včetně změn cest</option><option value="parent">Rodiče a připojení</option><option value="health">Ticho a návraty</option><option value="route">Změny cest</option></select><div id="events" class="events"></div></section>
+      <div class="method"><strong>Jak mapu číst</strong><p>Šipky ukazují zachycené cesty ke koordinátoru. Šedý spoj je jiná dříve pozorovaná cesta; její současnou dostupnost neznáme.</p><p>„Ticho“ znamená překročený čas bez zprávy při fungujícím sběru, nikoli potvrzenou závadu. Mezery v záznamu se nepočítají jako výpadek zařízení.</p><p>Čtverec = router, ovál = koncové zařízení. Číslo na spoji = počet zdrojových zařízení, jejichž poslední cesta jím vede.</p></div>
+    </aside>
+  </main>
+  <div id="error" role="alert" hidden></div>
+  <script>window.ZigbeeFrames={};</script>
+  <script>
+    (()=>{const load=src=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(Error('Nelze načíst '+src));document.head.append(s);});load('manifest.js?fresh='+Date.now()).then(()=>{const version=window.ZigbeeManifest.generated;document.querySelector('link[rel=stylesheet]').href='style.css?v='+version;return load('world.js?v='+version).then(()=>load('app.js?v='+version));}).catch(e=>{document.getElementById('error').textContent=e.message;document.getElementById('error').hidden=false;});})();
+  </script>
+</body>
+</html>

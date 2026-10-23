@@ -1,0 +1,7 @@
+__pycache__
+*.pyc
+*.sqlite*
+*.log
+options.json
+data
+site
