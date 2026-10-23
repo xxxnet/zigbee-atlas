@@ -336,7 +336,15 @@ def initial_layout(history, root, reset=False):
                     lines.append(f'{json.dumps(edge[0])} -> {json.dumps(edge[1])};')
                     linked.add(edge)
         lines.append('}')
-        result = subprocess.run(['sfdp', '-Tjson'], input='\n'.join(lines), capture_output=True, text=True, check=True)
+        try:
+            result = subprocess.run(['sfdp', '-Tjson'], input='\n'.join(lines), capture_output=True, text=True, check=True)
+        except subprocess.CalledProcessError as error:
+            if 'triangulation' not in (error.stderr or ''):
+                raise
+            # Alpine builds can omit Graphviz's optional triangulation library.
+            # fdp supports scaling without it; positions are cached afterwards.
+            portable = '\n'.join(lines).replace('overlap=prism', 'overlap=scale')
+            result = subprocess.run(['fdp', '-Tjson'], input=portable, capture_output=True, text=True, check=True)
         graph = json.loads(result.stdout)
         for entry in graph.get('objects', []):
             if entry.get('name') in nodes and entry.get('pos'):

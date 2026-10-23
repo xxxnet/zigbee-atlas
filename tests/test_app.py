@@ -8,6 +8,8 @@ from pathlib import Path
 import sys
 import tempfile
 import threading
+import subprocess
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 from urllib.request import Request,urlopen
@@ -16,6 +18,7 @@ from zoneinfo import ZoneInfo
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"zigbee_atlas/app"))
 from app import DEFAULTS,Handler,SetupError,Worker,atomic_publish,find_source,source_metadata
+import core
 from log_reader import parse_line
 
 
@@ -77,6 +80,19 @@ class AppTests(unittest.TestCase):
                 with self.assertRaises(HTTPError) as error:urlopen(Request(f"http://127.0.0.1:{server.server_port}/",method=method),timeout=5)
                 self.assertEqual(error.exception.code,403)
         finally:server.shutdown();server.server_close();thread.join()
+
+    def test_graphviz_without_triangulation_has_portable_layout(self):
+        data=self.root/"private";data.mkdir();db=core.connect(data)
+        rows,_=source_metadata(self.source);core.ingest(db,{"devices":rows})
+        failure=subprocess.CalledProcessError(1,["sfdp"],stderr="Graphviz not built with triangulation library")
+        try:
+            with patch.object(core.shutil,"which",return_value="/usr/bin/sfdp"),patch.object(core.subprocess,"run",side_effect=[failure,SimpleNamespace(stdout='{"objects":[]}')]) as run:
+                layout=core.initial_layout(core.History(db),data)
+            self.assertEqual(len(layout["nodes"]),3)
+            self.assertIn("overlap=prism",run.call_args_list[0].kwargs["input"])
+            self.assertIn("overlap=scale",run.call_args_list[1].kwargs["input"])
+            self.assertEqual(run.call_args_list[1].args[0],["fdp","-Tjson"])
+        finally:db.close()
 
 
 if __name__=="__main__":unittest.main()
